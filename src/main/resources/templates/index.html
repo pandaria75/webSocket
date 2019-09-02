@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>websocket</title>
+    <style>
+        #message{
+            margin-top:40px;
+            border:1px solid gray;
+            padding:20px;
+        }
+    </style>
+</head>
+<body>
+    <button onclick="conectWebSocket()">连接WebSocket</button>
+    <button onclick="closeWebSocket()">断开连接</button>
+    <hr /><br />
+    消息：<input id="text" type="text" />
+    <button onclick="send()">发送消息</button>
+    <div id="message"></div>
+</body>
+<script type="text/javascript">
+    var websocket = null;
+    function conectWebSocket(){
+        if('WebSocket' in window){
+            websocket = new WebSocket("ws://localhost:8080/websocket");
+        }else {
+            alert('Not support websocket');
+        }
+    //    连接错误的回调方法
+        websocket.onerror = function () {
+            setMessageInnerHTML("error");
+        }
+        websocket.onopen = function (event) {
+            setMessageInnerHTML("建立连接成功");
+        }
+        websocket.onmessage = function (event) {
+            setMessageInnerHTML(event.data);
+        }
+        websocket.onclose = function () {
+            setMessageInnerHTML('关闭连接');
+        }
+    //    监听窗口关闭事件
+        window.onbeforeunload = function (ev) {
+            websocket.close();
+        }
+    }
+    function setMessageInnerHTML(innerHTML){
+        document.getElementById('message').innerHTML += innerHTML + '<br/>';
+    }
+    function closeWebSocket() {
+        websocket.close();
+    }
+    function send() {
+        var message = document.getElementById('text').value;
+        websocket.send(message);
+    }
+</script>
+</html>
